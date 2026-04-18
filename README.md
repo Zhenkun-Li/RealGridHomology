@@ -105,12 +105,6 @@ The current low-memory path is lower-memory than the dense path, but it still lo
 
 The hat stage also performs a pre-computation memory check using estimated block sizes and available system memory. This is intentionally conservative, but on macOS it may still reject computations that would in practice complete because the operating system can reclaim or compress memory dynamically. The current code already tries to account for macOS behavior, but the estimate remains heuristic rather than exact.
 
-On the performance side, the current code already includes one major acceleration refinement:
-
-- Minus homology was rewritten from a dense global reduction to a sparse delta-banded reduction.
-
-That change substantially reduced the size-11 runtime relative to the earlier dense version. The next natural acceleration target is the hat stage.
-
 ## Trustworthiness
 
 The trustworthiness claims for this repository are project-specific and should not be read as formal certification. The current code has the following provenance and validation summary.
