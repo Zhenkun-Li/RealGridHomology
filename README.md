@@ -53,19 +53,17 @@ python3 -m real_grid_homology 3_1 --json
 The current codebase supports two anti-diagonal symmetry types:
 
 - `strongly_invertible`
-- `periodic`
+- `(doubly) periodic`
 
 These names are part of the implementation and are detected directly from the grid data by checking how the anti-diagonal reflection acts on `O` and `X` marks.
 
 ## Conventions
 
-The implementation uses the anti-diagonal symmetry axis. The following are implementation conventions, not universal mathematical conventions:
+The implementation uses the anti-diagonal symmetry axis, with the following conventions:
 
 - Odd-size strongly invertible diagrams: reflection preserves `O` marks and preserves `X` marks, with exactly one axis `O` and one axis `X`.
-- Periodic diagrams: reflection swaps `O` and `X`, and the current implementation requires no marks on the axis.
-- The backend also contains a separate even-size strongly invertible path. This should be regarded as a distinct parity-dependent setup from the odd strongly invertible convention above.
-
-In the current packaged interface, periodic diagrams are the no-axis-mark convention. The desktop UI exposes sizes `2` through `17` and applies parity-dependent validation rules, while the backend contains additional logic for the even strongly invertible case.
+- Even-size strongly invertible diagrams: reflection preserves `O` marks and preserves `X` marks, with two axis `O`s and no axis `X`.
+- Periodic diagrams: reflection swaps `O` and `X`, and thus no marks can be on axis.
 
 ## Grading Convention
 
@@ -74,7 +72,7 @@ When the workflow computes generator gradings, it uses the identity generator `(
 Normalization is then applied only when the downstream real invariants are formed:
 
 - Strongly invertible case: the Alexander grading is normalized so that the maximum and minimum non-vanishing Alexander gradings sum to `0`, and the Maslov grading is re-referenced using the `O^{NW}` generator.
-- Periodic case: no additional normalization is applied. In the current implementation, the periodic output keeps only a single grading.
+- Periodic case: no additional normalization is applied. There is no Alexander grading for periodic case and `O^{NW}` does not make sense either.
 
 ## Invariants And Current Limits
 
@@ -83,14 +81,7 @@ The current workflow limits are practical computational limits. They are primari
 - Polynomial: implemented for strongly invertible diagrams up to grid size `17`. It is not computed for periodic diagrams in the current code.
 - Hat homology: implemented up to grid size `13`. For strongly invertible diagrams, the output is bigraded. For periodic diagrams, the current implementation keeps only a single grading.
 - Minus homology: implemented for strongly invertible diagrams up to grid size `11`.
-
-Additional scope notes:
-
-- Odd-size strongly invertible and periodic diagrams are the primary public-facing paths in the current repository.
-- Periodic even-size destabilization is not implemented in the current theory/backend, so periodic computations should presently be treated as an odd-size path.
-- The backend includes an even strongly invertible grading path, but this is not exposed through the current odd-size UI controls.
-- The desktop UI currently exposes sizes `2` through `17`, with parity-dependent validation rules for the supported setups.
-- The command-line workflow can still be used on additional datasets placed in `data/knots/`, subject to the code restrictions above.
+- Increasing the allowable size expects either memory space at hundreds of GB or a revise on the computation method.
 
 ## Performance And Memory Notes
 
