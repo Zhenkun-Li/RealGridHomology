@@ -2,6 +2,8 @@
 
 RealGridHomology is a standalone Python implementation for computing real grid-homological data from anti-diagonally symmetric grid diagrams. The repository is prepared as a public-facing research codebase and ships only the runtime code plus a single template knot dataset, `3_1`.
 
+Algorithm based on the following paper: https://arxiv.org/abs/2604.21240
+
 ## Features
 
 - Generator, rectangle, domain, and grading construction for symmetric grid diagrams
@@ -80,21 +82,16 @@ The current workflow limits are practical computational limits. They are primari
 
 - Polynomial: implemented for strongly invertible diagrams up to grid size `17`. It is not computed for periodic diagrams in the current code.
 - Hat homology: implemented up to grid size `13`. For strongly invertible diagrams, the output is bigraded. For periodic diagrams, the current implementation keeps only a single grading.
-- Minus homology: implemented for strongly invertible diagrams up to grid size `11`.
-- Increasing the allowable size expects either memory space at hundreds of GB or a revise on the computation method.
+- Minus homology: implemented for strongly invertible diagrams up to grid size `12`.
+- Main constraint comes from the way we compute homology, explained below.
 
 ## Performance And Memory Notes
 
 This repository prioritizes transparency and ease of modification by staying in Python. That choice is convenient for research iteration, but not necessarily optimal for raw speed. A native implementation of the linear-algebra core in Rust or C++ could plausibly run faster.
 
-The main memory-sensitive stage is hat homology. The code currently uses two backends:
+The main memory-sensitive stage is the computation for homology. The code currently divides the whole differential matrix intro blocks via gradings (Alexander, Maslov, or Delta), but still load the full block of the matrix into the memory (at current border case, takes up few GBs, next size expecting few hundreds GB). A more aggressive optimization would stream smaller clusters of columns within a grading block rather than loading the whole block at once.
 
-- `dense`: materializes each differential block by grading
-- `low_memory`: spools entries to disk and then loads one full grading block at a time
-
-The current low-memory path is lower-memory than the dense path, but it still loads whole grading blocks into memory. This is the main reason the size limits are memory-driven. A more aggressive optimization would stream smaller clusters of columns within a grading block rather than loading the whole block at once.
-
-The hat stage also performs a pre-computation memory check using estimated block sizes and available system memory. This is intentionally conservative, but on macOS it may still reject computations that would in practice complete because the operating system can reclaim or compress memory dynamically. The current code already tries to account for macOS behavior, but the estimate remains heuristic rather than exact.
+The current code also performs a pre-computation memory check using estimated block sizes and available system memory. This is intentionally conservative, but on macOS it may still reject computations that would in practice complete because the operating system can reclaim or compress memory dynamically. The current code already tries to account for macOS behavior, but the estimate remains heuristic rather than exact.
 
 ## Trustworthiness
 
@@ -107,8 +104,6 @@ The trustworthiness claims for this repository are project-specific and should n
 - An intermediate tilde-homology divisibility property was checked across tested examples.
 - Symmetry of computed polynomials and homologies was also used as a consistency check on small-crossing examples.
 
-This is a reasonable level of evidence for a research code release, but it is still best interpreted as validated computational software rather than formally verified software.
-
 ## Repository Layout
 
 - `real_grid_homology/`: runtime package
@@ -118,7 +113,6 @@ This is a reasonable level of evidence for a research code release, but it is st
 
 ## Notes
 
-- This repository intentionally excludes development notes, migration scratch files, and private local tooling.
 - The only bundled knot input is `3_1`, which serves as a template for additional public datasets.
 - Intermediate and output files are generated locally under `data/` when the workflow is executed.
 - The UI uses `matplotlib` together with the standard-library `tkinter` module.
